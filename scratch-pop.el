@@ -88,4 +88,4 @@
 
 (provide 'scratch-pop)
 
-;; scratch-pop.el ends here
+;;; scratch-pop.el ends here
