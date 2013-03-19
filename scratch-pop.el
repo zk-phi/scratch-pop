@@ -1,4 +1,4 @@
-;;; scratch-pop --- popup scratch
+;;; scratch-pop.el --- popup scratch
 
 ;; Copyright (C) 2012 zk_phi
 
@@ -44,7 +44,7 @@
 
 (defconst scratch-pop-popwin-available (require 'popwin nil t))
 
-;; * making another scratch
+;; * make another scratch
 
 (defvar scratch-pop-another-scratch nil)
 
