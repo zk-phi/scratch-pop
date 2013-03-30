@@ -1,0 +1,15 @@
+* scratch-pop.el
+
+*scratch*バッファをポップアップ
+
+pop-up scratch
+
+** Usage
+
+Require this script
+
+: (require 'scratch-pop)
+
+then a command "scratch-pop" is available. This command display
+*scratch* buffer. If scratch is already displayed, then another
+scratch buffer named *scratch2* is made.
