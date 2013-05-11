@@ -40,7 +40,7 @@
 
 (defconst scratch-pop-version "1.0.1")
 
-;; * configures
+;; * popwin association
 
 (defconst scratch-pop-popwin-available (require 'popwin nil t))
 
@@ -60,7 +60,7 @@
 
 (if scratch-pop-popwin-available
 
-    ;; popwin version
+;;;###autoload
     (defun scratch-pop ()
       (interactive)
       (if (and popwin:popup-buffer
@@ -73,7 +73,7 @@
                              (window-list)))
              (scratch-pop-another-scratch) "*scratch*"))))
 
-  ;; display-buffer version
+;;;###autoload
   (defun scratch-pop ()
     (interactive)
     (select-window
