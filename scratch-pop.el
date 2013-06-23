@@ -40,7 +40,7 @@
 
 (defconst scratch-pop-version "1.0.1")
 
-;; * popwin association
+;; * popwin integration
 
 (defconst scratch-pop-popwin-available (require 'popwin nil t))
 
