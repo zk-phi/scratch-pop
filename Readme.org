@@ -1,8 +1,8 @@
 * scratch-pop.el
 
-*scratch*バッファをポップアップ
+"scratch"バッファをポップアップ
 
-pop-up scratch
+pop-up "scratch"es
 
 ** Usage
 
@@ -12,4 +12,6 @@ Require this script
 
 then a command "scratch-pop" is available. This command display
 *scratch* buffer. If scratch is already displayed, then another
-scratch buffer named *scratch2* is made.
+scratch buffer is made.
+
+When called with region, the region is yanked to the scratch.
