@@ -76,6 +76,7 @@
           (delete-region (region-beginning) (region-end))
           (deactivate-mark))
         (popwin:popup-buffer (scratch-pop-get-scratch))
+        (goto-char (point-max))
         (when str
           (insert (concat "\n" str "\n")))))
 
@@ -89,6 +90,7 @@
         (deactivate-mark))
       (select-window
        (display-buffer (scratch-pop-get-scratch)))
+      (goto-char (point-max))
       (when str
         (insert (concat "\n" str "\n")))))
   )
