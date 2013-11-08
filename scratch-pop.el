@@ -35,6 +35,7 @@
 ;; 1.0.0 first released
 ;; 1.0.1 better management of multiple scratches
 ;;       automatically yank region
+;; 1.0.2 better handling of popup window
 
 ;;; Code:
 
@@ -65,23 +66,10 @@
 
 ;; * popup command
 
-(if (require 'popwin nil t)
+(if (not (require 'popwin nil t))
 
 ;;;###autoload
     (defun scratch-pop ()
-      (interactive)
-      (let (str)
-        (when (use-region-p)
-          (setq str (buffer-substring (region-beginning) (region-end)))
-          (delete-region (region-beginning) (region-end))
-          (deactivate-mark))
-        (popwin:popup-buffer (scratch-pop-get-scratch))
-        (goto-char (point-max))
-        (when str
-          (insert (concat "\n" str "\n")))))
-
-;;;###autoload
-  (defun scratch-pop ()
     (interactive)
     (let (str)
       (when (use-region-p)
@@ -93,6 +81,24 @@
       (goto-char (point-max))
       (when str
         (insert (concat "\n" str "\n")))))
+
+  (defvar popwin:popup-window)
+  (declare-function popwin:popup-buffer "popwin")
+
+;;;###autoload
+  (defun scratch-pop ()
+      (interactive)
+      (let (str)
+        (when (use-region-p)
+          (setq str (buffer-substring (region-beginning) (region-end)))
+          (delete-region (region-beginning) (region-end))
+          (deactivate-mark))
+        (if (eq (selected-window) popwin:popup-window)
+            (switch-to-buffer (scratch-pop-get-scratch))
+          (popwin:popup-buffer (scratch-pop-get-scratch)))
+        (goto-char (point-max))
+        (when str
+          (insert (concat "\n" str "\n")))))
   )
 
 ;; * provide
