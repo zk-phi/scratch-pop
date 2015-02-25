@@ -16,7 +16,7 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-;; Version: 1.0.2
+;; Version: 2.0.0
 ;; Author: zk_phi
 ;; URL: http://hins11.yu-yake.com/
 ;; Package-Requires: ((popwin "0.7.0alpha"))
@@ -37,55 +37,60 @@
 ;; 1.0.1 better management of multiple scratches
 ;;       automatically yank region
 ;; 1.0.2 better handling of popup window
+;; 2.0.0 change scratch buffer selection algorithm
 
 ;;; Code:
 
 (require 'popwin)
+(require 'edmacro)
 
-;; * constants
+(defconst scratch-pop-version "2.0.0")
 
-(defconst scratch-pop-version "1.0.2")
+(defvar scratch-pop-default-major-mode 'lisp-interaction-mode)
 
-;; * utilities
+(defvar scratch-pop--next-scratch-id nil)
+(defvar scratch-pop--visible-buffers nil)
 
-(defun scratch-pop--get-buffer-create (bufname)
-  (or (get-buffer bufname)
-      (with-current-buffer (generate-new-buffer bufname)
-        (lisp-interaction-mode)
-        (current-buffer))))
-
-(defun scratch-pop--get-scratch ()
-  (let ((id 1)
-        (buflst (mapcar (lambda (w) (window-buffer w)) (window-list)))
-        buffer)
-    (while (and (setq buffer
-                      (scratch-pop--get-buffer-create
-                       (concat "*scratch"
-                               (unless (= id 1) (int-to-string id))
-                               "*")))
-                (member buffer buflst))
-      (setq id (1+ id)))
-    buffer))
-
-;; * the command
+(defun scratch-pop--get-next-scratch ()
+  (let* ((name (concat "*scratch"
+                       (unless (= scratch-pop--next-scratch-id 1)
+                         (int-to-string scratch-pop--next-scratch-id))
+                       "*"))
+         (buf (get-buffer name)))
+    (setq scratch-pop--next-scratch-id (1+ scratch-pop--next-scratch-id))
+    (cond ((null buf)
+           (with-current-buffer (generate-new-buffer name)
+             (funcall scratch-pop-default-major-mode)
+             (current-buffer)))
+          ((memq buf scratch-pop--visible-buffers)
+           (scratch-pop--get-next-scratch))
+          (t
+           buf))))
 
 ;;;###autoload
 (defun scratch-pop ()
   (interactive)
-  (let (str)
-    (when (use-region-p)
-      (setq str (buffer-substring (region-beginning) (region-end)))
-      (delete-region (region-beginning) (region-end))
-      (deactivate-mark))
-    (if (eq (selected-window) popwin:popup-window)
-        (switch-to-buffer (scratch-pop--get-scratch))
-      (popwin:popup-buffer (scratch-pop--get-scratch)))
-    (goto-char (point-max))
+  (setq scratch-pop--next-scratch-id 1
+        scratch-pop--visible-buffers (mapcar 'window-buffer (window-list)))
+  (let ((str (when (use-region-p)
+               (prog1 (buffer-substring (region-beginning) (region-end))
+                 (delete-region (region-beginning) (region-end))
+                 (deactivate-mark))))
+        (repeat-key (vector last-input-event)))
+    (popwin:popup-buffer (scratch-pop--get-next-scratch))
     (when str
-      (insert (concat "\n" str "\n")))))
-
-
-;; * provide
+      (save-excursion
+        (goto-char (point-max))
+        (insert (concat "\n" str "\n"))))
+    (message "(Type %s to repeat)" (edmacro-format-keys repeat-key))
+    (set-temporary-overlay-map
+     (let ((km (make-sparse-keymap))
+           (cycle-fn (lambda ()
+                       (interactive)
+                       (with-selected-window popwin:popup-window
+                         (switch-to-buffer (scratch-pop--get-next-scratch))))))
+       (define-key km repeat-key cycle-fn)
+       km) t)))
 
 (provide 'scratch-pop)
 
