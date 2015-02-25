@@ -41,6 +41,7 @@
 ;; 1.0.1 better management of multiple scratches
 ;;       automatically yank region
 ;; 1.0.2 better handling of popup window
+;; 1.0.3 require popwin
 ;; 2.0.0 change scratch buffer selection algorithm
 
 ;;; Code:
