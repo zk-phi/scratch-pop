@@ -23,13 +23,17 @@
 
 ;;; Commentary:
 
-;; To install, put code like
+;; Load this script
 ;;
 ;;   (require 'scratch-pop)
 ;;
-;; in your .emacs file. You can popup scratch with "M-x scratch-pop". If
-;; a scratch is already displayed, another is made. You may bind some keys
-;; to "scratch-pop", if you want.
+;; and you can popup scratch with "M-x scratch-pop". If a scratch is
+;; already displayed, another scratch buffer is created. You may also
+;; bind some keys to "scratch-pop", if you want.
+;;
+;;   (global-set-key "C-M-s" 'scratch-pop)
+;;
+;; When called with region, the region is yanked to the scratch.
 
 ;;; Change Log:
 
@@ -48,8 +52,9 @@
 
 (defvar scratch-pop-default-major-mode 'lisp-interaction-mode)
 
-(defvar scratch-pop--next-scratch-id nil)
-(defvar scratch-pop--visible-buffers nil)
+;; internal vars
+(defvar scratch-pop--next-scratch-id nil) ; Int
+(defvar scratch-pop--visible-buffers nil) ; List[Buffer]
 
 (defun scratch-pop--get-next-scratch ()
   (let* ((name (concat "*scratch"
@@ -79,9 +84,8 @@
         (repeat-key (vector last-input-event)))
     (popwin:popup-buffer (scratch-pop--get-next-scratch))
     (when str
-      (save-excursion
-        (goto-char (point-max))
-        (insert (concat "\n" str "\n"))))
+      (goto-char (point-max))
+      (insert (concat "\n" str "\n")))
     (message "(Type %s to repeat)" (edmacro-format-keys repeat-key))
     (set-temporary-overlay-map
      (let ((km (make-sparse-keymap))

@@ -6,12 +6,14 @@ pop-up "scratch"es
 
 ** Usage
 
-Require this script
+Load this script
 
 : (require 'scratch-pop)
 
-then a command "scratch-pop" is available. This command display
-*scratch* buffer. If scratch is already displayed, then another
-scratch buffer is made.
+and you can popup scratch with "M-x scratch-pop". If a scratch is
+already displayed, another scratch buffer is created. You may also
+bind some keys to "scratch-pop", if you want.
+
+: (global-set-key "C-M-s" 'scratch-pop)
 
 When called with region, the region is yanked to the scratch.
