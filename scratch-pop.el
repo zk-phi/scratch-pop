@@ -51,8 +51,6 @@
 
 (defconst scratch-pop-version "2.0.0")
 
-(defvar scratch-pop-default-major-mode 'lisp-interaction-mode)
-
 ;; internal vars
 (defvar scratch-pop--next-scratch-id nil) ; Int
 (defvar scratch-pop--visible-buffers nil) ; List[Buffer]
@@ -66,7 +64,7 @@
     (setq scratch-pop--next-scratch-id (1+ scratch-pop--next-scratch-id))
     (cond ((null buf)
            (with-current-buffer (generate-new-buffer name)
-             (funcall scratch-pop-default-major-mode)
+             (funcall initial-major-mode)
              (current-buffer)))
           ((memq buf scratch-pop--visible-buffers)
            (scratch-pop--get-next-scratch))
