@@ -47,7 +47,7 @@
 ;;; Code:
 
 (require 'popwin)
-(require 'edmacro)
+(require 'edmacro)                      ; edmacro-format-keys
 
 (defconst scratch-pop-version "2.0.0")
 
@@ -56,6 +56,10 @@
 (defvar scratch-pop--visible-buffers nil) ; List[Buffer]
 
 (defun scratch-pop--get-next-scratch ()
+  "Return the next scratch buffer. This function creates a new
+buffer if necessary. Binding `scratch-pop--next-scratch-id'
+and/or `scratch-pop--visible-buffers' dynamically affects this
+function."
   (let* ((name (concat "*scratch"
                        (unless (= scratch-pop--next-scratch-id 1)
                          (int-to-string scratch-pop--next-scratch-id))
@@ -66,13 +70,15 @@
            (with-current-buffer (generate-new-buffer name)
              (funcall initial-major-mode)
              (current-buffer)))
-          ((memq buf scratch-pop--visible-buffers)
+          ((memq buf scratch-pop--visible-buffers) ; skip visible buffers
            (scratch-pop--get-next-scratch))
           (t
            buf))))
 
 ;;;###autoload
 (defun scratch-pop ()
+  "Popup a scratch buffer. If `*scratch*' is already displayed,
+create another scratch buffer."
   (interactive)
   (let ((str (when (use-region-p)
                (prog1 (buffer-substring (region-beginning) (region-end))
