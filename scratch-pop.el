@@ -74,13 +74,13 @@
 ;;;###autoload
 (defun scratch-pop ()
   (interactive)
-  (setq scratch-pop--next-scratch-id 1
-        scratch-pop--visible-buffers (mapcar 'window-buffer (window-list)))
   (let ((str (when (use-region-p)
                (prog1 (buffer-substring (region-beginning) (region-end))
                  (delete-region (region-beginning) (region-end))
                  (deactivate-mark))))
-        (repeat-key (vector last-input-event)))
+        (repeat-key (vector last-input-event))
+        (scratch-pop--next-scratch-id 1)
+        (scratch-pop--visible-buffers (mapcar 'window-buffer (window-list))))
     (popwin:popup-buffer (scratch-pop--get-next-scratch))
     (when str
       (goto-char (point-max))
