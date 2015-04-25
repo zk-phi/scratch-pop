@@ -1,4 +1,4 @@
-;;; scratch-pop.el --- popup "scratch"es
+;;; scratch-pop.el --- Popup scratch buffers.
 
 ;; Copyright (C) 2012-2015 zk_phi
 
@@ -78,7 +78,7 @@ function."
 ;;;###autoload
 (defun scratch-pop ()
   "Popup a scratch buffer. If `*scratch*' is already displayed,
-create another scratch buffer."
+create new scratch buffers `*scratch2*', `*scratch3*', ... ."
   (interactive)
   (let ((str (when (use-region-p)
                (prog1 (buffer-substring (region-beginning) (region-end))
