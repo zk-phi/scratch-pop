@@ -84,9 +84,9 @@ create new scratch buffers `*scratch2*', `*scratch3*', ... ."
                (prog1 (buffer-substring (region-beginning) (region-end))
                  (delete-region (region-beginning) (region-end))
                  (deactivate-mark))))
-        (repeat-key (vector last-input-event))
-        (scratch-pop--next-scratch-id 1)
-        (scratch-pop--visible-buffers (mapcar 'window-buffer (window-list))))
+        (repeat-key (vector last-input-event)))
+    (setq scratch-pop--next-scratch-id 1
+          scratch-pop--visible-buffers (mapcar 'window-buffer (window-list)))
     (popwin:popup-buffer (scratch-pop--get-next-scratch))
     (when str
       (goto-char (point-max))
