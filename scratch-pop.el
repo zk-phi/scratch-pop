@@ -72,6 +72,10 @@
   "Generate, popup (& optionally backup) scratch buffer(s)"
   :group 'emacs)
 
+(defcustom scratch-pop-backup-directory nil
+  "When non-nil, scratch buffers are backed up in the directory."
+  :group 'emacs)
+
 ;; + backup
 
 (defun scratch-pop-backup-scratches ()
