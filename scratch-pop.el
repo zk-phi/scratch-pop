@@ -16,7 +16,7 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-;; Version: 2.1.0
+;; Version: 2.1.1
 ;; Author: zk_phi
 ;; URL: http://hins11.yu-yake.com/
 ;; Package-Requires: ((popwin "0.7.0alpha"))
@@ -32,9 +32,6 @@
 ;; also bind some keys to "scratch-pop" if you want.
 ;;
 ;;   (global-set-key "C-M-s" 'scratch-pop)
-;;
-;; When the command is called with an active region, the region is
-;; moved to the scratch.
 ;;
 ;; You can backup scratches by calling `scratch-pop-backup-scratches'
 ;; after setting `scratch-pop-backup-directory', and then restore
@@ -58,13 +55,14 @@
 ;; 1.0.3 require popwin
 ;; 2.0.0 change scratch buffer selection algorithm
 ;; 2.1.0 add version control feature
+;; 2.1.1 add option to disable auto yank
 
 ;;; Code:
 
 (require 'popwin)
 (require 'edmacro)                      ; edmacro-format-keys
 
-(defconst scratch-pop-version "2.1.0")
+(defconst scratch-pop-version "2.1.1")
 
 ;; + customs
 
@@ -74,6 +72,11 @@
 
 (defcustom scratch-pop-backup-directory nil
   "When non-nil, scratch buffers are backed up in the directory."
+  :group 'emacs)
+
+(defcustom scratch-pop-enable-auto-yank nil
+  "When non-nil and `scratch-pop' is called with an active
+region, the region is yanked to the scratch buffer."
   :group 'emacs)
 
 ;; + backup
@@ -148,7 +151,7 @@ function."
   "Popup a scratch buffer. If `*scratch*' is already displayed,
 create new scratch buffers `*scratch2*', `*scratch3*', ... ."
   (interactive)
-  (let ((str (when (use-region-p)
+  (let ((str (when (and scratch-pop-enable-auto-yank (use-region-p))
                (prog1 (buffer-substring (region-beginning) (region-end))
                  (delete-region (region-beginning) (region-end))
                  (deactivate-mark))))
