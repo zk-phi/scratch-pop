@@ -25,8 +25,9 @@ also bind some keys to "scratch-pop" if you want.
 
 You can backup scratches by calling `scratch-pop-backup-scratches'
 after setting `scratch-pop-backup-directory', and then restore
-backup by calling `scratch-pop-restore-scratches'.
+backups by calling `scratch-pop-restore-scratches'.
 
+: (setq scratch-pop-backup-directory "~/.emacs.d/scratch_pop/")
 : (scratch-pop-backup-directory)
 : (scratch-pop-restore-scratches)
 
