@@ -54,7 +54,7 @@
 ;; 1.0.2 better handling of popup window
 ;; 1.0.3 require popwin
 ;; 2.0.0 change scratch buffer selection algorithm
-;; 2.1.0 add version control feature
+;; 2.1.0 add backup feature
 ;; 2.1.1 add option to disable auto yank
 
 ;;; Code:
@@ -87,7 +87,7 @@ region, the region is yanked to the scratch buffer."
     (error "scratch-pop: Backup directory is not set."))
   (if (file-exists-p scratch-pop-backup-directory)
       (mapc (lambda (f) (when (file-regular-p f) (delete-file f)))
-            (directory-files scratch-pop-backup-directory))
+            (directory-files scratch-pop-backup-directory t))
     (make-directory scratch-pop-backup-directory))
   (dolist (buf (buffer-list))
     (let* ((bufname (buffer-name buf))
