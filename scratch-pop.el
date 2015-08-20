@@ -59,6 +59,8 @@
 
 ;;; Code:
 
+;; *TODO* implement version control feature
+
 (require 'popwin)
 (require 'edmacro)                      ; edmacro-format-keys
 
