@@ -74,12 +74,14 @@
 
 (defcustom scratch-pop-backup-directory nil
   "When non-nil, scratch buffers are backed up in the directory."
-  :group 'emacs)
+  :group 'scratch-pop
+  :type 'string)
 
 (defcustom scratch-pop-enable-auto-yank nil
   "When non-nil and `scratch-pop' is called with an active
 region, the region is yanked to the scratch buffer."
-  :group 'emacs)
+  :group 'scratch-pop
+  :type 'boolean)
 
 ;; + backup
 
