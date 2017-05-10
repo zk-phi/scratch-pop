@@ -59,9 +59,8 @@
 
 ;;; Code:
 
-;; *TODO* implement version control feature
-
 (require 'popwin)
+(require 'cl-lib)                       ; cl-remove-if-not
 (require 'edmacro)                      ; edmacro-format-keys
 
 (defconst scratch-pop-version "2.1.1")
@@ -77,6 +76,11 @@
   :group 'scratch-pop
   :type 'string)
 
+(defcustom scratch-pop-kept-old-backups 50
+  "Number of old versions kept in `scratch-pop-backup-directory'."
+  :group 'scratch-pop
+  :type 'integer)
+
 (defcustom scratch-pop-enable-auto-yank nil
   "When non-nil and `scratch-pop' is called with an active
 region, the region is yanked to the scratch buffer."
@@ -85,45 +89,87 @@ region, the region is yanked to the scratch buffer."
 
 ;; + backup
 
+;; backup filename format: /BACKUP_DIR/yyyymmddHHMMSS!BUFNAME_SANS_ASTERISK!MAJOR_MODE
+
+;; TODO: remove this code in a future version
+(defun scratch-pop--migrate-older-backups ()
+  "Convert backups in older format to the current format."
+  (when (file-exists-p scratch-pop-backup-directory)
+    (let ((default-directory scratch-pop-backup-directory))
+      (dolist (file (directory-files scratch-pop-backup-directory))
+        (when (string-match "^\\(scratch[0-9]*\\)_\\(.*\\)$" file)
+          (rename-file file (format "00000000000000!%s!%s" (match-string 1 file) (match-string 2 file))))))))
+
+(defun scratch-pop--cleanup-older-backups ()
+  "If `scratch-pop-backup-directory' contains greater number of
+backups than `scratch-pop-kept-old-backups', delete oldest
+backups."
+  (when (file-exists-p scratch-pop-backup-directory)
+    (let ((lst (cl-remove-if-not 'file-regular-p
+                                 (directory-files scratch-pop-backup-directory t))))
+      (when (> (length lst) scratch-pop-kept-old-backups)
+        (message "[scratch-pop] cleaning up old backups.")
+        (dotimes (_ (- (length lst) scratch-pop-kept-old-backups))
+          (delete-file (pop lst)))))))
+
+(defun scratch-pop--maybe-backup-buffer (bufname)
+  "Create backup file of buffer BUFNAME if it is a scratch
+buffer."
+  (when (and (file-exists-p scratch-pop-backup-directory)
+             (string-match "^\\*\\(scratch[0-9]*\\)\\*$" bufname))
+    (with-current-buffer bufname
+      (let ((name (format "%s!%s!%s"
+                          (format-time-string "%Y%m%d%H%M%S" (current-time))
+                          (match-string 1 bufname)
+                          major-mode)))
+        (write-region 1 (1+ (buffer-size))
+                      (expand-file-name name scratch-pop-backup-directory))))))
+
+(defun scratch-pop--maybe-restore-buffer (bufname)
+  "Restore scratch buffer BUFNAME from backup if exists. Return
+non-nil when a buffer is restored, or nil otherwise."
+  (when (and (file-exists-p scratch-pop-backup-directory)
+             (string-match "^\\*\\(scratch[0-9]*\\)\\*$" bufname))
+    (let* ((regexp (concat "!" (match-string 1 bufname) "!"))
+           (lst (directory-files scratch-pop-backup-directory t regexp))
+           (file (and lst (car (last lst)))))
+      (when file
+        (or (get-buffer bufname) (generate-new-buffer bufname))
+        (with-current-buffer bufname
+          (erase-buffer)
+          (save-excursion
+            (insert-file-contents (expand-file-name file scratch-pop-backup-directory)))
+          (let ((mode (and (string-match "!\\([^!]*\\)$" file) (intern (match-string 1 file)))))
+            (when (functionp mode) (funcall mode)))
+          t)))))
+
 (defun scratch-pop-backup-scratches ()
   "Backup scratch buffers."
   (unless scratch-pop-backup-directory
     (error "scratch-pop: Backup directory is not set."))
-  (if (file-exists-p scratch-pop-backup-directory)
-      (mapc (lambda (f) (when (file-regular-p f) (delete-file f)))
-            (directory-files scratch-pop-backup-directory t))
+  (unless (file-exists-p scratch-pop-backup-directory)
     (make-directory scratch-pop-backup-directory))
   (dolist (buf (buffer-list))
-    (let* ((bufname (buffer-name buf))
-           (filename (when (string-match "^\\*\\(scratch[0-9]*\\)\\*$" bufname)
-                       (concat (match-string 1 bufname) "_"
-                               (with-current-buffer bufname (symbol-name major-mode))))))
-      (when filename
-        (with-current-buffer buf
-          (unless (zerop (buffer-size))
-            (write-region 1 (1+ (buffer-size))
-                          (expand-file-name filename scratch-pop-backup-directory))))))))
+    (scratch-pop--maybe-backup-buffer (buffer-name buf)))
+  (scratch-pop--cleanup-older-backups))
 
 (defun scratch-pop-restore-scratches (&optional limit)
-  "Restore scratch buffers. You can optionally limit the number
+  "Restore scratch buffers. You can optionally LIMIT the number
 of scratch buffers to restore."
   (unless scratch-pop-backup-directory
     (error "scratch-pop: Backup directory is not set."))
+  (scratch-pop--migrate-older-backups)  ; backward-compatibility
   (when (file-exists-p scratch-pop-backup-directory)
-    (dolist (file (directory-files scratch-pop-backup-directory))
-      (when (string-match "^\\(scratch\\([0-9]*\\)\\)_\\(.*\\)$" file)
-        (let ((bufname (concat "*" (match-string 1 file) "*"))
-              (mode (intern (match-string 3 file)))
-              (id (or (string-to-number (match-string 2 file)) 0)))
-          (when (or (null limit) (> limit id))
-            (unless (get-buffer bufname)
-              (generate-new-buffer bufname))
-            (with-current-buffer bufname
-              (erase-buffer)
-              (save-excursion
-                (insert-file-contents
-                 (expand-file-name file scratch-pop-backup-directory)))
-              (funcall mode))))))))
+    (cond (limit
+           (dotimes (n limit)
+             (scratch-pop--maybe-restore-buffer
+              (concat "*scratch" (if (> n 1) (int-to-string n) "") "*"))))
+          ;; backward-compatibility
+          (t
+           (let ((n 1))
+             (while (scratch-pop--maybe-restore-buffer
+                     (concat "*scratch" (if (> n 1) (int-to-string n) "") "*"))
+               (cl-incf n)))))))
 
 ;; + core
 
