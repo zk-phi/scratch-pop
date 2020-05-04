@@ -211,7 +211,7 @@ create new scratch buffers `*scratch2*', `*scratch3*', ... ."
       (goto-char (point-max))
       (insert (concat "\n" str "\n")))
     (message "(Type %s to repeat)" (edmacro-format-keys repeat-key))
-    (set-temporary-overlay-map
+    (set-transient-map
      (let ((km (make-sparse-keymap))
            (cycle-fn (lambda ()
                        (interactive)
