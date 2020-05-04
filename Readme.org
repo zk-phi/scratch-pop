@@ -6,13 +6,9 @@ pop-up (and optionaly back-up) "scratch"es
 
 ** USER-VISIBLE CHANGES IN THE LAST VERSION
 
-- scratch-pop now keeps more older backups
-
-  now =scratch-pop-backup-scratches= does not immediately delete
-  older backups, but keeps 50 (by default) older backups.
-
-  You can change the number of backups to keep (at most) by setting
-  =scratch-pop-kept-old-backups=.
+- automatic migration from older (before May 2017) versions is removed
+  - you may still migrate from older versions by manually calling the
+    command =scratch-pop-migrate-older-backups=
 
 ** Usage
 

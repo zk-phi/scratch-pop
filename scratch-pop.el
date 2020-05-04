@@ -90,8 +90,9 @@ region, the region is yanked to the scratch buffer."
 ;; backup filename format: /BACKUP_DIR/yyyymmddHHMMSS!BUFNAME_SANS_ASTERISK!MAJOR_MODE
 
 ;; TODO: remove this code in a future version
-(defun scratch-pop--migrate-older-backups ()
+(defun scratch-pop-migrate-older-backups ()
   "Convert backups in older format to the current format."
+  (interactive)
   (when (file-exists-p scratch-pop-backup-directory)
     (let ((default-directory scratch-pop-backup-directory))
       (dolist (file (directory-files scratch-pop-backup-directory))
@@ -156,7 +157,6 @@ non-nil when a buffer is restored, or nil otherwise."
 of scratch buffers to restore."
   (unless scratch-pop-backup-directory
     (error "scratch-pop: Backup directory is not set."))
-  (scratch-pop--migrate-older-backups)  ; backward-compatibility
   (when (file-exists-p scratch-pop-backup-directory)
     (cond (limit
            (dotimes (n limit)
