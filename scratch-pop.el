@@ -85,6 +85,12 @@ region, the region is yanked to the scratch buffer."
   :group 'scratch-pop
   :type 'boolean)
 
+(defcustom scratch-pop-after-restore-hook nil
+  "Hook run immediately after a scratch buffer is restored from
+backup and set major-mode."
+  :group 'scratch-pop
+  :type 'hook)
+
 ;; + backup
 
 ;; backup filename format: /BACKUP_DIR/yyyymmddHHMMSS!BUFNAME_SANS_ASTERISK!MAJOR_MODE
@@ -140,6 +146,7 @@ non-nil when a buffer is restored, or nil otherwise."
             (insert-file-contents (expand-file-name file scratch-pop-backup-directory)))
           (let ((mode (and (string-match "!\\([^!]*\\)$" file) (intern (match-string 1 file)))))
             (when (functionp mode) (funcall mode)))
+          (run-hooks 'scratch-pop-after-restore-hook)
           t)))))
 
 (defun scratch-pop-backup-scratches ()
