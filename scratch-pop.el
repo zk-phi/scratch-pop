@@ -93,6 +93,11 @@ backup and set major-mode."
   :group 'scratch-pop
   :type 'hook)
 
+(defcustom scratch-pop-initial-major-mode initial-major-mode
+  "Major-mode applied to scratch buffers when created."
+  :group 'scratch-pop
+  :type 'symbol)
+
 ;; + backup
 
 ;; backup filename format: /BACKUP_DIR/yyyymmddHHMMSS!BUFNAME_SANS_ASTERISK!MAJOR_MODE
@@ -196,7 +201,7 @@ function."
     (setq scratch-pop--next-scratch-id (1+ scratch-pop--next-scratch-id))
     (cond ((null buf)
            (with-current-buffer (generate-new-buffer name)
-             (funcall initial-major-mode)
+             (funcall scratch-pop-initial-major-mode)
              (current-buffer)))
           ((memq buf scratch-pop--visible-buffers) ; skip visible buffers
            (scratch-pop--get-next-scratch))
