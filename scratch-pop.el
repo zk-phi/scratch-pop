@@ -17,7 +17,7 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-;; Version: 2.1.2
+;; Version: 2.1.3
 ;; Author: zk_phi
 ;; URL: http://hins11.yu-yake.com/
 ;; Package-Requires: ((popwin "0.7.0alpha"))
@@ -56,6 +56,7 @@
 ;; 2.1.0 add backup feature
 ;; 2.1.1 add option to disable auto yank
 ;; 2.1.2 add option scratch-pop-after-restore-hook
+;; 2.1.3 add option scratch-pop-initial-major-mode
 
 ;;; Code:
 
@@ -63,7 +64,7 @@
 (require 'cl-lib)                       ; cl-remove-if-not
 (require 'edmacro)                      ; edmacro-format-keys
 
-(defconst scratch-pop-version "2.1.2")
+(defconst scratch-pop-version "2.1.3")
 
 ;; + customs
 
