@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;;; scratch-pop.el --- Generate, popup (& optionally backup) scratch buffer(s).
 
 ;; Copyright (C) 2012- zk_phi
