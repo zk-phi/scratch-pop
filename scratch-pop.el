@@ -17,10 +17,10 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-;; Version: 2.1.3
+;; Version: 2.2.0
 ;; Author: zk_phi
 ;; URL: http://hins11.yu-yake.com/
-;; Package-Requires: ((popwin "0.7.0alpha"))
+;; Package-Requires: ()
 
 ;;; Commentary:
 
@@ -57,12 +57,12 @@
 ;; 2.1.1 add option to disable auto yank
 ;; 2.1.2 add option scratch-pop-after-restore-hook
 ;; 2.1.3 add option scratch-pop-initial-major-mode
+;; 2.2.0 no longer requires popwin
+;;       (set scratch-pop-popup-function to restore the previous behavior)
 
 ;;; Code:
 
-(require 'popwin)
-
-(defconst scratch-pop-version "2.1.3")
+(defconst scratch-pop-version "2.2.0")
 
 ;; + customs
 
@@ -96,6 +96,11 @@ backup and set major-mode."
   "Major-mode applied to scratch buffers when created."
   :group 'scratch-pop
   :type 'symbol)
+
+(defcustom scratch-pop-popup-function 'display-buffer
+  "Function used to popup the scratch buffer."
+  :group 'scratch-pop
+  :type 'function)
 
 ;; + backup
 
@@ -221,7 +226,7 @@ create new scratch buffers `*scratch2*', `*scratch3*', ... ."
         (repeat-key (vector last-input-event)))
     (setq scratch-pop--next-scratch-id 1
           scratch-pop--visible-buffers (mapcar 'window-buffer (window-list)))
-    (popwin:popup-buffer (scratch-pop--get-next-scratch))
+    (funcall scratch-pop-popup-function (scratch-pop--get-next-scratch))
     (when str
       (goto-char (point-max))
       (insert (concat "\n" str "\n")))
@@ -230,8 +235,7 @@ create new scratch buffers `*scratch2*', `*scratch3*', ... ."
      (let ((km (make-sparse-keymap))
            (cycle-fn (lambda ()
                        (interactive)
-                       (with-selected-window popwin:popup-window
-                         (switch-to-buffer (scratch-pop--get-next-scratch))))))
+                       (switch-to-buffer (scratch-pop--get-next-scratch)))))
        (define-key km repeat-key cycle-fn)
        km) t)))
 
