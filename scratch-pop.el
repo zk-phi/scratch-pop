@@ -61,7 +61,6 @@
 ;;; Code:
 
 (require 'popwin)
-(require 'cl-lib)                       ; cl-remove-if-not
 
 (defconst scratch-pop-version "2.1.3")
 
@@ -117,8 +116,8 @@ backup and set major-mode."
 backups than `scratch-pop-kept-old-backups', delete oldest
 backups."
   (when (file-exists-p scratch-pop-backup-directory)
-    (let ((lst (cl-remove-if-not 'file-regular-p
-                                 (directory-files scratch-pop-backup-directory t))))
+    (let ((lst (delq nil (mapcar (lambda (f) (and (file-regular-p f) f))
+                                 (directory-files scratch-pop-backup-directory t)))))
       (when (> (length lst) scratch-pop-kept-old-backups)
         (message "[scratch-pop] cleaning up old backups.")
         (dotimes (_ (- (length lst) scratch-pop-kept-old-backups))
@@ -181,7 +180,7 @@ of scratch buffers to restore."
            (let ((n 1))
              (while (scratch-pop--maybe-restore-buffer
                      (concat "*scratch" (if (> n 1) (int-to-string n) "") "*"))
-               (cl-incf n)))))))
+               (setq n (1+ n))))))))
 
 ;; + core
 
