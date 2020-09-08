@@ -62,7 +62,6 @@
 
 (require 'popwin)
 (require 'cl-lib)                       ; cl-remove-if-not
-(require 'edmacro)                      ; edmacro-format-keys
 
 (defconst scratch-pop-version "2.1.3")
 
@@ -208,6 +207,8 @@ function."
            (scratch-pop--get-next-scratch))
           (t
            buf))))
+
+(autoload 'edmacro-format-keys "edmacro.el")
 
 ;;;###autoload
 (defun scratch-pop ()
