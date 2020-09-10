@@ -97,7 +97,7 @@ backup and set major-mode."
   :group 'scratch-pop
   :type 'symbol)
 
-(defcustom scratch-pop-popup-function 'display-buffer
+(defcustom scratch-pop-popup-function 'scratch-pop-popup-buffer
   "Function used to popup the scratch buffer."
   :group 'scratch-pop
   :type 'function)
@@ -213,6 +213,11 @@ function."
            buf))))
 
 (autoload 'edmacro-format-keys "edmacro.el")
+
+(defun scratch-pop-popup-buffer (buf)
+  (if (string-match "^\\*\\(scratch[0-9]*\\)\\*$" (buffer-name))
+      (switch-to-buffer buf)
+    (select-window (display-buffer-below-selected buf nil))))
 
 ;;;###autoload
 (defun scratch-pop ()
