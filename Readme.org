@@ -4,11 +4,17 @@
 
 pop-up (and optionaly back-up) "scratch"es
 
-** USER-VISIBLE CHANGES IN THE LAST VERSION
+** USER VISIBLE CHANGE IN 2.2.0
 
-- automatic migration from older (before May 2017) versions is removed
-  - you may still migrate from older versions by manually calling the
-    command =scratch-pop-migrate-older-backups=
+Now =scratch-pop.el= does not require =popwin.el=, and use new
+function =scratch-pop-popup-buffer= to popup scratch buffers by
+default.
+
+You may restore the last behavior by =require=-ing =popwin= and change
+the variable =scratch-pop-popup-function=.
+
+: (require 'popwin)
+: (setq scratch-pop-popup-function 'popwin:popup-buffer)
 
 ** Usage
 
